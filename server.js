@@ -16,10 +16,23 @@ app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Send out the home page
-app.get("*", (req, res) => res.sendFile(path.join(__dirname, "public/index.html")));
 
 
+// Returns the home page
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "/public/index.html")));
+
+// Returns the notes page
+app.get('/notes', (req, res) => res.sendFile(path.join(__dirname, "/public/notes.html")));
+
+// Reads db.json and returns all saved notes as JSON
+app.get('/api/notes', (req, res) => {
+  return ( fs.readFile('./db/db.json', 'utf8', function (err, data) {
+    // If error, return error status
+    if (err) {return res.status(500).json({ status: "Error reading notes from server" })}
+    // If no error, return success status and continue
+    res.status(200).send(data);   
+  }))
+})
 
 
 
