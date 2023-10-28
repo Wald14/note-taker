@@ -34,6 +34,22 @@ app.get('/api/notes', (req, res) => {
   }))
 })
 
+// Reads db.json, adds note, rewrites db.json
+app.post('/api/notes', (req, res) => {
+  return ( fs.readFile('./db/db.json', 'utf8', function (err, data) {
+    // If error, return error status
+    if (err) {return res.status(500).json({ status: "Error sending note to server" })}
+    // If no error, parse data, push in new note, rewrite file 
+    const notes = JSON.parse(data);
+    notes.push(req.body);
+    fs.writeFile('./db/db.json', JSON.stringify(notes), (err) => {
+      if (err) console.log("Error with writing file")
+    })
+    console.log('New note added!')
+    res.status(200).send(notes)
+  }))
+})
+
 
 
 // listening for connection to the port
