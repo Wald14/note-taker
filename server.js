@@ -2,6 +2,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const { v1: uuidv1 } = require('uuid');
 
 // Initialize an instance of Express.js
 const app = express();
@@ -30,7 +31,7 @@ app.get('/api/notes', (req, res) => {
     // If error, return error status
     if (err) {return res.status(500).json({ status: "Error reading notes from server" })}
     // If no error, return success status and continue
-    res.status(200).send(data);   
+    res.status(200).json(JSON.parse(data));   
   }))
 })
 
@@ -39,13 +40,18 @@ app.post('/api/notes', (req, res) => {
   return ( fs.readFile('./db/db.json', 'utf8', function (err, data) {
     // If error, return error status
     if (err) {return res.status(500).json({ status: "Error sending note to server" })}
-    // If no error, parse data, push in new note, rewrite file 
+    // If no error:
+    // create id for new note and add it to the note
+    const newNote = req.body;
+    newNote.id = uuidv1();
+    // Parse loaded notes
     const notes = JSON.parse(data);
+    // Push newNote into the loaded notes array
     notes.push(req.body);
+    // Rewrite notes to db.json
     fs.writeFile('./db/db.json', JSON.stringify(notes), (err) => {
       if (err) console.log("Error with writing file")
     })
-    console.log('New note added!')
     res.status(200).send(notes)
   }))
 })
