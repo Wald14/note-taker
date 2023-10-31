@@ -27,19 +27,19 @@ app.get('/notes', (req, res) => res.sendFile(path.join(__dirname, "/public/notes
 
 // Reads db.json and returns all saved notes as JSON
 app.get('/api/notes', (req, res) => {
-  return ( fs.readFile('./db/db.json', 'utf8', function (err, data) {
+  return (fs.readFile('./db/db.json', 'utf8', function (err, data) {
     // If error, return error status
-    if (err) {return res.status(500).json({ status: "Error reading notes from server" })}
+    if (err) { return res.status(500).json({ status: "Error reading notes from server" }) }
     // If no error, return success status and continue
-    res.status(200).json(JSON.parse(data));   
+    res.status(200).json(JSON.parse(data));
   }))
 })
 
 // Reads db.json, adds note, rewrites db.json
 app.post('/api/notes', (req, res) => {
-  return ( fs.readFile('./db/db.json', 'utf8', function (err, data) {
+  return (fs.readFile('./db/db.json', 'utf8', function (err, data) {
     // If error, return error status
-    if (err) {return res.status(500).json({ status: "Error sending note to server" })}
+    if (err) { return res.status(500).json({ status: "Error sending note to server" }) }
     // If no error:
     // create id for new note and add it to the note
     const newNote = req.body;
@@ -56,6 +56,25 @@ app.post('/api/notes', (req, res) => {
   }))
 })
 
+app.delete('/api/notes/:id', (req, res) => {
+  return (fs.readFile('./db/db.json', 'utf8', function (err, data) {
+    // If error, return error status
+    if (err) { return res.status(500).json({ status: "Error reading notes from server" }) }
+    // If no error, return success status and continue
+    const notes = JSON.parse(data);
+    const noteId = req.params.id;
+    // console.log(noteId)
+    const index = notes.findIndex(x => x.id === noteId);
+    notes.splice(index, 1);
+    console.log(`Note at index ${index} with an id of ${noteId} has been deleted`)
+    // Rewrite notes to db.json
+    fs.writeFile('./db/db.json', JSON.stringify(notes), (err) => {
+      if (err) console.log("Error with writing file after note deletion")
+    })
+
+    res.status(200).json(JSON.parse(data));
+  }))
+})
 
 
 // listening for connection to the port
